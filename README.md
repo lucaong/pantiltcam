@@ -64,7 +64,7 @@ following instructions assume you are connecting via SSH, so you don't have a
 display attached to the Pi.
 
 Navigate to the project directory, then start the Python server and the headless
-Chrome browser with (substitute YOUR-CHOSEN-ID with the ID you chose):
+Chrome browser with (substitute `YOUR-CHOSEN-ID` with the ID you chose):
 
 ```
 ./start YOUR-CHOSEN-ID
