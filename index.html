@@ -175,6 +175,7 @@
         cameraId = 'pantiltcam:' + $cameraIdInput.value
 
         var conn = peer.connect(cameraId, { reliable: true })
+        console.log('Connecting to ID', cameraId)
 
         conn.on('open', function() {
           window.conn = conn
