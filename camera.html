@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pan Tilt Cam</title>
+    <script src="vendor/peerjs.min.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      var hash = window.location.hash.replace(/^#/, '')
+
+      if (hash.length === 0) {
+        throw new Error('ID not given. Pass the ID as the URL hash.')
+      }
+
+      var id = 'pantiltcam:' + hash
+      var peer = new Peer(id, {
+        configuration: {
+          iceServers: [
+            { urls: "stun.l.google.com:19302" },
+            { urls: "stun1.l.google.com:19302" },
+            { urls: "stun2.l.google.com:19302" },
+            { urls: "stun3.l.google.com:19302" },
+            { urls: "stun4.l.google.com:19302" }
+          ]
+        }
+      })
+
+      peer.on('connection', function (conn) {
+        console.log('Received', conn)
+        var remoteId = conn.peer
+
+        navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { exact: 320 },
+            height: { exact: 240 },
+            frameRate: { ideal: 5, max: 8 }
+          }
+        })
+          .then(function (stream) {
+            var call = peer.call(remoteId, stream)
+            conn.on('close', function () {
+              stream.getTracks().forEach(function (track) {
+                track.stop()
+              })
+            })
+          })
+          .catch(function (error) {
+            console.error(error)
+          })
+
+
+        conn.on('data', function (data) {
+          if (data.pan != null) {
+            // set pan angle
+            fetch('http://localhost:9595/api/pan/' + data.pan, {
+              method: 'POST'
+            })
+          }
+          if (data.tilt != null) {
+            // set tilt angle
+            fetch('http://localhost:9595/api/tilt/' + data.tilt, {
+              method: 'POST'
+            })
+          }
+          if (data.getAngles) {
+            fetch('http://localhost:9595/api/angles')
+              .then(function (response) {
+                return response.json()
+              })
+              .then(function (json) {
+                conn.send({ angles: json })
+              })
+          }
+        })
+
+        conn.on('close', function () {
+          Object.values(peer.connections[remoteId]).forEach(function (conn) {
+            conn.close()
+          })
+        })
+      })
+    </script>
+  </body>
+</html>

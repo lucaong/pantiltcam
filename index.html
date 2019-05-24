@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pan Tilt Cam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="vendor/peerjs.min.js"></script>
+
+    <style type="text/css">
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        font-size: 16px;
+        background: #555;
+      }
+
+      h1 {
+        text-align: center;
+        color: #777;
+        text-shadow: 0 1px 0 #333;
+      }
+
+      video {
+        width: 320px;
+        height: 240px;
+      }
+
+      input[type=text], button {
+        border: none;
+        border-radius: 0;
+        padding: 0.5em;
+        margin: 0;
+        font-size: 13px;
+        outline: none;
+        color: #333;
+      }
+
+      input[type=text] {
+        background: #888;
+      }
+
+      input[type=text]::placeholder {
+        color: #ddd;
+      }
+
+      input[type=range] {
+        -webkit-appearance: none;
+        border-radius: 0;
+        margin: 0;
+        width: 100%;
+        background: #777;
+        height: 20px;
+      }
+
+      button {
+        background: #777;
+      }
+
+      button[disabled], input[disabled] {
+        opacity: 0.5;
+      }
+
+      .wrap {
+        margin: 20px auto;
+        width: 360px;
+      }
+
+      .connection {
+        display: flex;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .connection input {
+        flex-grow: 1;
+      }
+
+      button.stop {
+        background: tomato;
+      }
+
+      .pantilt {
+        padding: 20px;
+        margin: 0 0 20px 0;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        position: relative;
+        background: #666;
+        height: 280px;
+        width: 360px;
+      }
+
+      .slider {
+        display: block;
+        height: 20px;
+      }
+
+      .slider span {
+        display: none;
+      }
+
+      .slider input {
+        width: 100%;
+      }
+
+      .slider.slider-horizontal {
+        width: 320px;
+        position: absolute;
+        bottom: 0;
+        left: 20px;
+      }
+
+      .slider.slider-vertical {
+        width: 240px;
+        transform: rotate(-90deg);
+        transform-origin: 0 0;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="wrap">
+      <h1>
+        Pan Tilt Camera
+      </h1>
+      <form class="pantilt" style="display: none">
+        <label class="slider slider-horizontal">
+          <span>Pan:</span>
+          <input type="range" title="pan" min="0" max="180" step="1" id="pan" />
+        </label>
+        <label class="slider slider-vertical">
+          <span>Tilt:</span>
+          <input type="range" title="tilt" min="0" max="180" step="1" id="tilt" />
+        </label>
+        <video width='320' height='auto' autoplay playsinline></video>
+      </form>
+
+      <div class="connection">
+        <input type="text" placeholder="Camera ID" id="camera_id" />
+        <button class="connect">Connect</button>
+        <button class="stop" style="display: none">Stop</button>
+      </div>
+    </article>
+
+    <script type="text/javascript">
+      var peer = new Peer({
+        configuration: {
+          iceServers: [
+            { urls: "stun.l.google.com:19302" },
+            { urls: "stun1.l.google.com:19302" },
+            { urls: "stun2.l.google.com:19302" },
+            { urls: "stun3.l.google.com:19302" },
+            { urls: "stun4.l.google.com:19302" }
+          ]
+        }
+      })
+      var $connectButton = document.querySelector('button.connect')
+      var $cameraIdInput = document.querySelector('input#camera_id')
+      var $stopButton = document.querySelector('button.stop')
+      var $pantiltForm = document.querySelector('form.pantilt')
+      var $panInput = document.querySelector('input#pan')
+      var $tiltInput = document.querySelector('input#tilt')
+      var $video = document.querySelector('video')
+      var cameraId = null
+
+      $connectButton.addEventListener('click', function (event) {
+        event.preventDefault()
+        $connectButton.setAttribute('disabled', '')
+        $cameraIdInput.setAttribute('disabled', '')
+        $connectButton.style.display = 'none'
+        $stopButton.style.display = 'block'
+        cameraId = 'pantiltcam:' + $cameraIdInput.value
+
+        var conn = peer.connect(cameraId, { reliable: true })
+
+        conn.on('open', function() {
+          window.conn = conn
+          $pantiltForm.style.display = 'block'
+
+          $panInput.addEventListener('change', function (event) {
+            var angle = parseInt(event.target.value, 10) || 0
+            conn.send({ pan: 180 - angle })
+          })
+          $tiltInput.addEventListener('change', function (event) {
+            var angle = parseInt(event.target.value, 10) || 0
+            conn.send({ tilt: 180 - angle })
+          })
+
+          conn.send({ getAngles: true })
+        })
+
+        conn.on('error', function (error) {
+          console.error(error)
+          closeAllConnections(peer)
+        })
+
+        conn.on('data', function (data) {
+          console.log('Data:', data)
+
+          if (data.angles) {
+            $panInput.value = 180 - (data.angles.pan || 90)
+            $tiltInput.value = 180 - (data.angles.tilt || 90)
+          }
+        })
+      })
+
+      $stopButton.addEventListener('click', function (event) {
+        event.preventDefault()
+        closeAllConnections(peer)
+      })
+
+      peer.on('call', function (call) {
+        call.answer()
+
+        call.on('stream', function (stream) {
+          $video.srcObject = stream
+        })
+
+        call.on('close', function () {
+          closeAllConnections(peer)
+        })
+      })
+
+      var closeAllConnections = function (peer) {
+        Object.values(peer.connections[cameraId]).forEach(function (conn) {
+          console.log('Closing', conn)
+          conn.close()
+        })
+        $connectButton.style.display = 'block'
+        $connectButton.removeAttribute('disabled')
+        $cameraIdInput.removeAttribute('disabled')
+        $stopButton.style.display = 'none'
+        $pantiltForm.style.display = 'none'
+      }
+    </script>
+  </body>
+</html>
