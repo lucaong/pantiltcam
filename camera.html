@@ -12,7 +12,7 @@
         throw new Error('ID not given. Pass the ID as the URL hash.')
       }
 
-      var id = 'pantiltcam:' + hash
+      var id = 'pantiltcam-' + hash
       console.log('ID:', id)
 
       var peer = new Peer(id, {

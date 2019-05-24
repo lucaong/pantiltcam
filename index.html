@@ -172,7 +172,7 @@
         $cameraIdInput.setAttribute('disabled', '')
         $connectButton.style.display = 'none'
         $stopButton.style.display = 'block'
-        cameraId = 'pantiltcam:' + $cameraIdInput.value
+        cameraId = 'pantiltcam-' + $cameraIdInput.value
 
         var conn = peer.connect(cameraId, { reliable: true })
         console.log('Connecting to ID', cameraId)
