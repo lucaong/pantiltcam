@@ -4,7 +4,7 @@ This project is a fun experiment with WebRTC and IoT. It uses WebRTC to control
 remotely a "homemade" Raspberry Pi driven pan-tilt servo mechanism with a
 night-vision camera.
 
-![Pan-Tilt Cam](https://lucaong.github.io/pantiltcam/pantiltcam.png)
+![Pan-Tilt Cam](https://raw.github.com/lucaong/pantiltcam/pantiltcam.png)
 
 The project uses:
 
