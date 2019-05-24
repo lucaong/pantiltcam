@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# set -e
+
 if [ -z "$1" ]; then
   echo "ERROR: an ID must be supplied"
   exit 1
@@ -8,3 +10,5 @@ fi
 ./pantiltcam.py &
 
 chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
+
+trap 'kill $(jobs -p)' EXIT
