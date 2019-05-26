@@ -39,8 +39,9 @@ bolts to make everything sturdy and stable.
 ### Software:
 
 Install the latest Raspbian on the Raspberry Pi. Setup the WiFi network, enable
-the camera module (find the instructions on the Raspberry Pi guides). Install
-the Pimoroni Pan-Tilt HAT support software by following instructions
+the camera module (follow the instructions on the [Raspberry Pi
+guides](https://www.raspberrypi.org/documentation/configuration/camera.md)).
+Install the Pimoroni Pan-Tilt HAT support software by following instructions
 [here](https://github.com/pimoroni/pantilt-hat).
 
 You will also have to setup the camera to be used as a webcam by running:
