@@ -10,9 +10,9 @@ fi
 ./pantiltcam.py &
 SERVER_PID=$!
 
-chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
-
 trap shutdown_server EXIT SIGHUP SIGINT SIGQUIT SIGTERM
+
+chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
 
 shutdown_server()
 {
