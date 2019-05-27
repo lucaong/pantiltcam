@@ -12,4 +12,4 @@ SERVER_PID=$!
 
 chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
 
-trap kill $SERVER_PID EXIT SIGINT SIGTERM
+trap kill -9 $SERVER_PID EXIT SIGINT SIGTERM
