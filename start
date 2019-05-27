@@ -8,7 +8,8 @@ if [ -z "$1" ]; then
 fi
 
 ./pantiltcam.py &
+SERVER_PID=$!
 
-chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1 &
+chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
 
-wait
+trap kill $SERVER_PID EXIT SIGINT SIGTERM
