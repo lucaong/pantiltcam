@@ -12,4 +12,11 @@ SERVER_PID=$!
 
 chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
 
-trap kill -9 $SERVER_PID EXIT SIGINT SIGTERM
+trap shutdown_server EXIT SIGHUP SIGINT SIGQUIT SIGTERM
+
+shutdown_server()
+{
+  echo "Shutting down server (PID $SERVER_PID)"
+  kill $SERVER_PID
+  exit
+}
