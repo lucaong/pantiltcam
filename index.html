@@ -168,6 +168,12 @@
 
       $connectButton.addEventListener('click', function (event) {
         event.preventDefault()
+
+        if ($cameraIdInput.value.trim() === '') {
+          alert('Enter a Camera ID')
+          return false
+        }
+
         $connectButton.setAttribute('disabled', '')
         $cameraIdInput.setAttribute('disabled', '')
         $connectButton.style.display = 'none'

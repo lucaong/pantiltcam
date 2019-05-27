@@ -9,8 +9,6 @@ fi
 
 ./pantiltcam.py &
 
-echo https://lucaong.github.io/pantiltcam/camera.html#$1
+chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1 &
 
-chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
-
-trap 'kill $(jobs -p)' SIGINT SIGTERM EXIT
+wait
