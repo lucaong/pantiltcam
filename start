@@ -2,6 +2,14 @@
 
 # set -e
 
+cleanup()
+{
+  exit_code=${?-0}
+  echo "Shutting down server (PID $server_pid)"
+  kill $server_pid
+  exit $exit_code
+}
+
 if [ -z "$1" ]; then
   echo "ERROR: an ID must be supplied"
   exit 1
@@ -10,14 +18,6 @@ fi
 ./pantiltcam.py &
 server_pid=$!
 
-trap cleanup EXIT SIGHUP SIGINT SIGQUIT SIGTERM
+trap cleanup SIGHUP SIGINT SIGQUIT SIGTERM
 
 chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
-
-cleanup()
-{
-  exit_code=${?-0}
-  echo "Shutting down server (PID $server_pid)"
-  kill $server_pid
-  exit $exit_code
-}
