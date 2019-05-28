@@ -10,11 +10,11 @@ fi
 ./pantiltcam.py &
 server_pid=$!
 
-trap cleanup EXIT SIGHUP SIGINT SIGQUIT SIGTERM
+trap cleanup_on_exit EXIT SIGHUP SIGINT SIGQUIT SIGTERM
 
 chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
 
-cleanup()
+cleanup_on_exit()
 {
   exit_code=$?
   echo "Shutting down server (PID $server_pid)"
