@@ -8,15 +8,16 @@ if [ -z "$1" ]; then
 fi
 
 ./pantiltcam.py &
-SERVER_PID=$!
+server_pid=$!
 
-trap shutdown_server EXIT SIGHUP SIGINT SIGQUIT SIGTERM
+trap cleanup EXIT SIGHUP SIGINT SIGQUIT SIGTERM
 
 chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
 
-shutdown_server()
+cleanup()
 {
-  echo "Shutting down server (PID $SERVER_PID)"
-  kill $SERVER_PID
-  exit
+  exit_code=$?
+  echo "Shutting down server (PID $server_pid)"
+  kill $server_pid
+  exit $exit_code
 }
