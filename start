@@ -18,6 +18,6 @@ fi
 ./pantiltcam.py &
 server_pid=$!
 
-trap cleanup SIGHUP SIGINT SIGQUIT SIGTERM
+trap cleanup EXIT SIGHUP SIGINT SIGQUIT SIGTERM
 
 chromium-browser --headless --enable-logging=stderr --remote-debugging-pipe --use-fake-ui-for-media-stream https://lucaong.github.io/pantiltcam/camera.html#$1
